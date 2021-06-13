@@ -5,9 +5,7 @@
  */
 package Home;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.DriverManager;
+import java.sql.*;
 import javax.swing.JOptionPane;
 
 /**
@@ -16,13 +14,15 @@ import javax.swing.JOptionPane;
  */
 public class Registration_Form extends javax.swing.JFrame {
 
-    Connection conn = null;
-    PreparedStatement stmt = null;
+    Connection conn;
+    ResultSet rs;
+    PreparedStatement pstmt;
     /**
      * Creates new form Registration_Form
      */
     public Registration_Form() {
         initComponents();
+        conn=Connection_Manager.ConnectDb();
     }
 
     /**
@@ -187,7 +187,7 @@ public class Registration_Form extends javax.swing.JFrame {
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Home/images/icons8_boarding_pass_95px.png"))); // NOI18N
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(69, 123, 157));
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("C i t y P a s s");
 
@@ -545,20 +545,16 @@ public class Registration_Form extends javax.swing.JFrame {
         }
         else{
             try{
-                String url = "jdbc:mysql://localhost:3306/ars_db";
-                String sql_uname = "root";
-                String sql_pass = "root";
+                String sql = "Insert into account(id,fname,lname,uname,pass, email, user_type)values(id,?,?,?,?,?,?)";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1,reg_fname.getText());
+                pstmt.setString(2,reg_lname.getText());
+                pstmt.setString(3,reg_uname.getText());
+                pstmt.setString(4,reg_pass.getText());
+                pstmt.setString(5,reg_email.getText());
+                pstmt.setString(6,"user");
 
-                String query = "INSERT into register values(id,?,?,?,?,?)";
-                conn = DriverManager.getConnection(url,sql_uname,sql_pass);
-                stmt = conn.prepareStatement(query);
-                stmt.setString(1,reg_fname.getText());
-                stmt.setString(2,reg_lname.getText());
-                stmt.setString(3,reg_uname.getText());
-                stmt.setString(4,reg_pass.getText());
-                stmt.setString(5,reg_email.getText());
-
-                stmt.executeUpdate();
+                pstmt.executeUpdate();
                 JOptionPane.showMessageDialog(null,"Registration Successful");
             }
             catch (Exception e){

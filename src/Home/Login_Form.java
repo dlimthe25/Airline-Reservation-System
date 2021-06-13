@@ -4,18 +4,25 @@
  * and open the template in the editor.
  */
 package Home;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
 /**
  *
  * @author David
  */
 public class Login_Form extends javax.swing.JFrame {
+    Connection conn;
+    ResultSet rs;
+    PreparedStatement pst;
     
     /**
      * Creates new form Login_Form
      */
     public Login_Form() {
         initComponents();
+        conn=Connection_Manager.ConnectDb();
     }
 
     /**
@@ -58,7 +65,7 @@ public class Login_Form extends javax.swing.JFrame {
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Home/images/icons8_boarding_pass_95px.png"))); // NOI18N
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(69, 123, 157));
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("C i t y P a s s");
 
@@ -130,6 +137,11 @@ public class Login_Form extends javax.swing.JFrame {
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("Login");
         jLabel3.setToolTipText("");
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel3MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -250,6 +262,52 @@ public class Login_Form extends javax.swing.JFrame {
         
         dispose();
     }//GEN-LAST:event_jLabel4MouseClicked
+
+    private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
+        String sql="select * from Account where uname=? and pass=?";
+        try{
+            pst=conn.prepareStatement (sql);
+
+            pst.setString(1,username.getText());
+            pst.setString(2,password.getText());
+            rs=pst.executeQuery();
+            if(rs.next()){
+                String fname = rs.getString("fname");
+                String lname = rs.getString("lname");
+                String usertype = rs.getString("user_type");
+                user.userfullname = fname+" "+lname;
+                user.permission = usertype;
+                if ("admin".equals(user.permission)){
+                    rs.close();
+                    pst.close();
+                    setVisible(false);
+                    // Loading ob=new Loading();
+                    //ob.setUpLoading();
+                    Admin_Panel ob=new Admin_Panel();
+                    ob.setVisible(true);
+                }else{
+                    rs.close();
+                    pst.close();
+                    setVisible(false);
+                    // Loading ob=new Loading();
+                    //ob.setUpLoading();
+                    Home ob=new Home();
+                    ob.setVisible(true);
+                }
+            }else{
+                JOptionPane.showMessageDialog(null, "Wrong username or password!");
+            }
+
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }finally{
+            try{
+                rs.close();
+                pst.close();
+            }catch(Exception e){
+            }
+        }
+    }//GEN-LAST:event_jLabel3MouseClicked
 
     /**
      * @param args the command line arguments
